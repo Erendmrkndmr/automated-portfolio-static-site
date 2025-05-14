@@ -1,6 +1,25 @@
+# 1. Nginx image
 FROM nginx:alpine
-COPY . /usr/share/nginx/html
 
+# 2. git + htpasswd (apache2-utils)
+RUN apk add --no-cache git apache2-utils
+
+# 3. Clone the github repo (website)
+RUN git clone https://github.com/Erendmrkndmr/Erendmrkndmr.github.io.git /tmp/portfolio && \
+    rm -rf /usr/share/nginx/html/* && \
+    cp -r /tmp/portfolio/* /usr/share/nginx/html
+
+# 4. Basic Auth: User: eren, Pass: secretpassword (Sample)
+RUN htpasswd -bc /etc/nginx/.htpasswd eren secretpassword
+
+# 5. nginx conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# 6. robots.txt (bot)
+RUN echo -e "User-agent: *\nDisallow: /" > /usr/share/nginx/html/robots.txt
+
+# 7. open port
 EXPOSE 80
 
+# 8. nginx start
 CMD ["nginx", "-g", "daemon off;"]
