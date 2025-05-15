@@ -16,6 +16,9 @@ RUN htpasswd -cb /etc/nginx/.htpasswd $USERNAME $PASSWORD
 # Nginx konfigurasyonunu kopyala
 COPY default.conf /etc/nginx/conf.d/default.conf
 
+RUN echo -e "User-agent: *\nDisallow: /" > /usr/share/nginx/html/robots.txt
+
+
 # Port ac
 EXPOSE 80
 
