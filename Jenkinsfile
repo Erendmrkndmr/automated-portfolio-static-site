@@ -2,39 +2,32 @@ pipeline {
   agent any
 
   parameters {
-    string(name: 'USERNAME', defaultValue: 'eren', description: 'Basic Auth Username')
-    password(name: 'PASSWORD', defaultValue: 'secretpassword', description: 'Basic Auth Password')
+    string(name: 'USERNAME', defaultValue: 'admin', description: 'Basic Auth Username')
+    string(name: 'PASSWORD', defaultValue: 'secret123', description: 'Basic Auth Password')
   }
 
   environment {
-    IMAGE_NAME = "portfolio-site"
+    IMAGE_NAME = "automated-portfolio-site"
+    CONTAINER_NAME = "portfolio-container"
+    PORT = "9090"
   }
 
   stages {
-    stage('Clone Repo') {
+    stage('Build Docker Image') {
       steps {
-        git branch: 'dev', url: 'https://github.com/Erendmrkndmr/automated-portfolio-static-site.git'
+        sh "docker build --build-arg USERNAME=${params.USERNAME} --build-arg PASSWORD=${params.PASSWORD} -t $IMAGE_NAME ."
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Stop Previous Container') {
       steps {
-        script {
-          sh """
-            docker build --build-arg USERNAME=${params.USERNAME} --build-arg PASSWORD=${params.PASSWORD} -t \$IMAGE_NAME .
-          """
-        }
+        sh "docker stop $CONTAINER_NAME || true && docker rm $CONTAINER_NAME || true"
       }
     }
 
     stage('Run Container') {
       steps {
-        script {
-          sh """
-            docker rm -f \$IMAGE_NAME || true
-            docker run -d -p 80:80 --name \$IMAGE_NAME \$IMAGE_NAME
-          """
-        }
+        sh "docker run -d -p ${PORT}:80 --name $CONTAINER_NAME $IMAGE_NAME"
       }
     }
   }
