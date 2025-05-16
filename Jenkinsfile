@@ -8,7 +8,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = "automated-portfolio-site"
-    CONTAINER_NAME = "portfolio-container"
+    CONTAINER_NAME = "portfolio-site"
     PORT = "9090"
   }
 
